@@ -65,14 +65,48 @@ def childrenAllocation(couples, childrenNumber):
         children += 1                       #using the numpy implementation for addition on an entire array
         remainingChildren -= len(couples)
     
-    for coupleIndex in random.sample(range(len(couples)), remainingChildren): #randomly give one more child to couples, whithout giving twice to the same couple (random.sample does it well)
+    for coupleIndex in random.sample(range(len(couples)), remainingChildren): #randomly give one more child to couples, whithout giving one twice to the same couple (random.sample does it well)
         children[coupleIndex] += 1
 
     return children
 
+def newChild(p1, p2, cut=-1):
+    """
+        creates a new child from two parents, cutting strings at a certain index
+        p1 : (string) parent 1
+        p2 : (string) parent 2
+        cut : (int) cutting index - leave -1 to cut in the middle (50 %) - use with caution, won't work properly if cut exceeds the length of parents
+    """
+    child = ""
+    if cut == -1:
+        child = p1[:len(p1)//2] + p2[len(p2)//2:]   #using string slicing to take half of each parent
+    else:
+        child = p1[:min(len(p1), cut)] + p2[min(len(p2), cut):] #using slicing to cut at the right place - using the min() function to avoid the IndexOutOfRange error
+    return child
 
+def rePopulate(pop, couples, children, childrenNumber):
+    """
+        create the new generation
+        pop : (np array population) current purged population
+        couples : (np array couples) couples between individuals
+        children : (np array children) number of children per couple
+        childrenNumber :(int) total number of children that will be created
+    """
+    newPop = np.empty(childrenNumber, dtype=object)   #empty array that will contain new children
+    currentChild = 0    #index to follow the insertion of children into the array
+    for coupleIndex in range(len(couples)): #iterate through every couple to create its children
+        for n in range(children[coupleIndex]):  #create as many children as stored in the "children" array
+            newPop[currentChild] = newChild(pop[couples[coupleIndex][0]],pop[couples[coupleIndex][1]])
+            currentChild += 1
+    return np.hstack((pop,newPop))  #concatenate two arrays : old and new population
+
+
+#print(newChild("testbleu","rouetest"),newChild("testbleu","rouetest",cut=100))
 pop = generateRandomPopulation(10, length=4)
 print(pop)
 print(individualScore(pop, coder("test"), coder))
-couples = np.array([[1,4],[2,10],[3,6],[5,9],[8,7]])
-print(childrenAllocation(couples, 100))
+couples = np.array([[0,1],[2,3],[4,5],[6,7],[8,9]])
+print(couples)
+children = childrenAllocation(couples, 5)
+newPop = rePopulate(pop, couples, children, 5)
+print(newPop)
