@@ -102,23 +102,28 @@ def rePopulate(pop, couples, children, childrenNumber):
 
 
 def mutate(ind, m):
+    """
+        Mutate an individual with a total probability m
+        ind : (string) the individual to mutate
+        m : (float) total mutating probability
+    """
     mutated = ""
-    for char in ind:
-        p = random.random()
+    for char in ind:    #changing characters in the individual
+        p = random.random() #pick up a random number to decide whether a character will change or not
         if p <= (m/2) / len(ind):
-            mutated += chr(charset[random.randint(0,len(charset)-1)])
+            mutated += chr(charset[random.randint(0,len(charset)-1)])   #changing a character by one within the allowed charset
         else:
-            mutated += char
+            mutated += char #when no mutation occurs, build the new individual with the exact same characters
     
     p = random.random()
     if p <= m / 4:
         pos = random.randint(0,len(mutated))
-        mutated = mutated[:pos] + mutated[(pos+1):]
+        mutated = mutated[:pos] + mutated[(pos+1):]     #mutating by removing a character
     
     p = random.random()
     if p <= m / 4:
         pos = random.randint(0,len(mutated))
-        mutated = mutated[:pos] + chr(charset[random.randint(0,len(charset)-1)]) + mutated[pos:]
+        mutated = mutated[:pos] + chr(charset[random.randint(0,len(charset)-1)]) + mutated[pos:]    #mutating by adding a character of the allowed charset
     return mutated
 
 
