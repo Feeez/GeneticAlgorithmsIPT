@@ -118,7 +118,7 @@ def mutate(ind, m):
     p = random.random()
     if p <= m / 4:
         pos = random.randint(0,len(mutated))
-        mutated = mutated[:pos] + mutated[(pos+1):]     #mutating by removing a character
+        mutated = mutated[:pos] + mutated[(pos+1):]     #mutating by removing a character 
     
     p = random.random()
     if p <= m / 4:
