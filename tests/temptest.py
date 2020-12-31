@@ -126,19 +126,52 @@ def mutate(ind, m):
         mutated = mutated[:pos] + chr(charset[random.randint(0,len(charset)-1)]) + mutated[pos:]    #mutating by adding a character of the allowed charset
     return mutated
 
+def coupling(pop):
+    """
+        Returns a list of couples ramdomly made among the population
+        pop : (np array population) current purged population
+    """
+    Liste_indice = [i for i in range(len(pop))]
+    #print(Liste_indice)
+    pop_mixed = np.array([],dtype=object)
+    couples = []
+    for i in range(len(pop)):
+        A = random.randint(0,len(Liste_indice)-1)
+        #print(A)
+        pop_mixed = np.append(pop_mixed,Liste_indice[A])
+        del(Liste_indice[A])
+        #print(pop_mixed)
+    for j in range(1,len(pop_mixed),2):
+        couples.append(([pop_mixed[j-1],pop_mixed[j]]))
+    return np.array(couples)
 
-#print(newChild("testbleu","rouetest"),newChild("testbleu","rouetest",cut=100))
-#pop = generateRandomPopulation(10, length=4)
-#print(pop)
-#print(individualScore(pop, coder("test"), coder))
-#couples = np.array([[0,1],[2,3],[4,5],[6,7],[8,9]])
-#print(couples)
-#children = childrenAllocation(couples, 5)
-#newPop = rePopulate(pop, couples, children, 5)
-#print(newPop)
-c=0
-for i in range(100):
-    mutated = mutate("testbleurouge", 0.1)
-    if mutated != "testbleurouge":
-        c += 1
-print(c/100)
+def survival(pop,scores,X,p):
+    """
+        Purges the population and keep only the bests. Keeps some others randomly
+        pop : (np array population) current purged population
+        scores : (np array scores) individual scores associated to the population
+        X : (int) number of bests individuals to keep
+        p : (float) popability for each individual to survive
+    """
+    SURVIVAL = np.array([],dtype=int)
+    survived = []
+    for i in range(X):
+        max = 1000000000 #on prend un nombre très élevé de manière à ce que le score soit forcément inférieur à ce nombre
+        indice = 0 
+        for k in range(len(scores)):  #parcourt la liste des scores pour trouver le meilleur
+            j = scores[k]
+            if j < max and k not in survived: #si on trouve un meilleur élément, il devient notre meilleur élément, vérification que l'individu n'aie pas déja survécu
+                max = j
+                indice = k
+            
+        survived.append(indice)
+        SURVIVAL = np.append(SURVIVAL,pop[indice])
+    #pour la suite, il nous faut déterminer parmi ceux qui n'ont pas été sélectionnés s'ils survivent ou non ie appliquer la probabilité de survit p à chacun d'entre eux
+    for j in range(len(pop)):
+        if pop[j] not in SURVIVAL:
+            probabilité = random.random()
+            if probabilité <= p:
+                SURVIVAL = np.append(SURVIVAL,pop[j])
+            #ici j'ajoute à SURVIVAL l'individu qui à survécu (qui possède le score d'indice = j)
+        
+    return SURVIVAL
