@@ -101,12 +101,39 @@ def rePopulate(pop, couples, children, childrenNumber):
     return np.hstack((pop,newPop))  #concatenate two arrays : old and new population
 
 
+def mutate(ind, m):
+    mutated = ""
+    for char in ind:
+        p = random.random()
+        if p <= (m/2) / len(ind):
+            mutated += chr(charset[random.randint(0,len(charset)-1)])
+        else:
+            mutated += char
+    
+    p = random.random()
+    if p <= m / 4:
+        pos = random.randint(0,len(mutated))
+        mutated = mutated[:pos] + mutated[(pos+1):]
+    
+    p = random.random()
+    if p <= m / 4:
+        pos = random.randint(0,len(mutated))
+        mutated = mutated[:pos] + chr(charset[random.randint(0,len(charset)-1)]) + mutated[pos:]
+    return mutated
+
+
 #print(newChild("testbleu","rouetest"),newChild("testbleu","rouetest",cut=100))
-pop = generateRandomPopulation(10, length=4)
-print(pop)
-print(individualScore(pop, coder("test"), coder))
-couples = np.array([[0,1],[2,3],[4,5],[6,7],[8,9]])
-print(couples)
-children = childrenAllocation(couples, 5)
-newPop = rePopulate(pop, couples, children, 5)
-print(newPop)
+#pop = generateRandomPopulation(10, length=4)
+#print(pop)
+#print(individualScore(pop, coder("test"), coder))
+#couples = np.array([[0,1],[2,3],[4,5],[6,7],[8,9]])
+#print(couples)
+#children = childrenAllocation(couples, 5)
+#newPop = rePopulate(pop, couples, children, 5)
+#print(newPop)
+c=0
+for i in range(100):
+    mutated = mutate("testbleurouge", 0.1)
+    if mutated != "testbleurouge":
+        c += 1
+print(c/100)
