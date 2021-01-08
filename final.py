@@ -3,7 +3,7 @@ import random
 from string import ascii_letters
 import time
 import base64
-charset = [ord(c) for c in ascii_letters + " +-*/'0123456789!?.,;:"] #define charset as characters like ()@é^[]{} are not allowed. Charset is the list of ascii numbers of allowed characters
+charset = [ord(c) for c in ascii_letters + " +-*/'0123456789!?.,;:"] #define charset as characters since ()@é^[]{} are not allowed. Charset is the list of ascii numbers of allowed characters
 
 from projetAlgoGen import *
 
@@ -19,12 +19,12 @@ def generateRandomPopulation(size, length=-1):
             pop[i] = np.random.randint(0,len(charset), size=length).flatten() #fill the array with a fixed length with a randomly generated list of charset index
     else:    # - generate a random length population
         for i in range(size):
-            pop[i] = np.random.randint(0,len(charset), size=(1,random.randint(0,21))).flatten() #fill the array with a random length with a randomly generated list of charset index
+            pop[i] = np.random.randint(0,len(charset), size=(1,random.randint(0,108))).flatten() #fill the array with a random length with a randomly generated list of charset index
     return pop2str(pop)
 
 def pop2str(pop):
     """
-        returns the population bus as a string np array
+        returns the population as a string np array
         pop : (np array population) the population to convert
     """
     strPop = np.empty(len(pop), dtype=object)   #using the empty method is faster than creating an array
@@ -36,7 +36,7 @@ def pop2str(pop):
 
 def individualScore(pop, secret, codingFunction=lambda x : x):
     """
-        returns a np array containing scores associated with each individual
+        returns a np array containing the assiociated score with each individual
         pop : (np array population) the population to estimate
         secret : (bytes) the secret phrase to compare the population to
         codingFunction : (function / lambda) the function used to code secret
@@ -47,7 +47,7 @@ def individualScore(pop, secret, codingFunction=lambda x : x):
         scores[i] = 10 * (len(secret) - len(coded))**2   #high importance is set to length difference (raised to power 2 and multiplicative factor)
 
         for j in range(min(len(coded), len(secret))):   #iterate on the more little between the secret phrase and the individual in order to avoid index problems
-            scores[i] += abs(coded[j] - secret[j])      #score is defined by de difference betweend ascii numbers for each character in the individual's string  
+            scores[i] += abs(coded[j] - secret[j])      #score is defined by de difference betweend ascii numbers for each character in the individual's string  -  assuming that secret is a binary string : b'test'
     return scores
 
 def childrenAllocation(couples, childrenNumber):
@@ -93,7 +93,7 @@ def mutate(ind, m):
     for char in ind:    #changing characters in the individual
         p = random.random() #pick up a random number to decide whether a character will change or not
         if p <= (m/2) / len(ind):
-            mutated += chr(charset[random.randint(0,len(charset)-1)])   #changing a character by one within the allowed charset
+            mutated += chr(charset[random.randint(0,len(charset)-1)])   #exchanging a character by one within the allowed charset
         else:
             mutated += char #when no mutation occurs, build the new individual with the exact same characters
     
@@ -134,13 +134,13 @@ def coupling(pop):
     #print(Liste_indice)
     pop_mixed = np.array([],dtype=object)
     couples = []
-    for i in range(len(pop)):
+    for i in range(len(pop)):   # mix the order of the indexes of population
         A = random.randint(0,len(Liste_indice)-1)
         #print(A)
         pop_mixed = np.append(pop_mixed,Liste_indice[A])
         del(Liste_indice[A])
         #print(pop_mixed)
-    for j in range(1,len(pop_mixed),2):
+    for j in range(1,len(pop_mixed),2): # take couples of following indexes, as they have been mixed
         couples.append(([pop_mixed[j-1],pop_mixed[j]]))
     return np.array(couples)
 
@@ -165,13 +165,13 @@ def survival(pop,scores,X,p):
             
         survived.append(indice)
         SURVIVAL = np.append(SURVIVAL,pop[indice])
-    #pour la suite, il nous faut déterminer parmi ceux qui n'ont pas été sélectionnés s'ils survivent ou non ie appliquer la probabilité de survit p à chacun d'entre eux
+    #pour la suite, il nous faut déterminer parmi ceux qui n'ont pas été sélectionnés s'ils survivent ou non ie appliquer la probabilité de survie p à chacun d'entre eux
     for j in range(len(pop)):
         if pop[j] not in SURVIVAL:
             probabilité = random.random()
             if probabilité <= p:
                 SURVIVAL = np.append(SURVIVAL,pop[j])
-            #ici j'ajoute à SURVIVAL l'individu qui à survécu (qui possède le score d'indice = j)
+            #ici on ajoute à SURVIVAL l'individu qui à survécu (qui possède le score d'indice = j)
         
     return SURVIVAL
 
@@ -193,6 +193,7 @@ def deviner(phrase_cryptee, FONCTION_CODAGE, PROB_MUT, TAILLE_POP, LONG_POP, NBR
     bestIndex = np.argmin(SCORES)
     print("Gen {} , Best ind : \" {} \" with a score of {}".format(gen, pop[bestIndex], SCORES[bestIndex]))
 
+
 start = time.time()
-deviner(coder("matthieuetpeioontfaitlavaisselle"), coder, 0.5, 100, -1, 40, 0.1)
+deviner(coder("test"), coder, 1, 100, -1, 40, 0.9)
 print("Ellapsed time : {}".format((time.time()-start)))
